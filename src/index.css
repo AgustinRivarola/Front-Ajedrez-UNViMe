@@ -11,6 +11,7 @@ body {
   color: #ffffff;
   font-family: 'Jersey 15', sans-serif;
   overflow-x: hidden;
+  position: relative;
 }
 
 /* Clases tipográficas personalizadas */
@@ -34,17 +35,55 @@ body {
   animation: ticker 30s linear infinite;
 }
 
+/* Animación y estilos de partículas flotantes en el fondo */
+@keyframes floatParticle {
+  0% {
+    transform: translateY(100vh) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.7;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-20px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.bg-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  background: rgba(231, 122, 247, 0.45);
+  border-radius: 50%;
+  animation: floatParticle linear infinite;
+  box-shadow: 0 0 10px rgba(231, 122, 247, 0.7);
+}
+
 /* Contenedores y efectos visuales */
 .screen-container {
   position: relative;
   min-height: 100vh;
   width: 100%;
-  background-color: #0C0F1E;
+  background-color: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+  z-index: 2;
 }
 
 .glass-button {
@@ -71,10 +110,8 @@ body {
   transform: scale(0.95);
 }
 
-/* Tablero decorativo central */
-.chess-grid {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+/* Contenedor del tablero con react-chessboard */
+.chess-board-wrapper {
   width: 360px;
   height: 360px;
   border: 4px solid #312525;
@@ -86,26 +123,24 @@ body {
 }
 
 @media (min-width: 640px) {
-  .chess-grid {
+  .chess-board-wrapper {
     width: 440px;
     height: 440px;
   }
 }
 
-.chess-cell-dark {
-  background-color: #b88b4a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  color: black;
+/* Animaciones de transición suave para subtítulos y botones */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
-.chess-cell-light {
-  background-color: #e3c193;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  color: black;
+.fade-transition {
+  animation: fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

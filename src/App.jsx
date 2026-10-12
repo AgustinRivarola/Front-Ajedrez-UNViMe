@@ -1,4 +1,35 @@
 import React, { useState } from 'react';
+import { Chessboard } from 'react-chessboard';
+
+// Componente de Partículas Flotantes en Movimiento
+const BackgroundParticles = () => {
+  const particles = Array.from({ length: 25 });
+
+  return (
+    <div className="bg-particles">
+      {particles.map((_, i) => {
+        const size = Math.random() * 6 + 3;
+        const left = Math.random() * 100;
+        const duration = Math.random() * 7 + 5;
+        const delay = Math.random() * 5;
+
+        return (
+          <span
+            key={i}
+            className="particle"
+            style={{
+              width: `${size}px`,
+              height: `${size}px`,
+              left: `${left}%`,
+              animationDuration: `${duration}s`,
+              animationDelay: `${delay}s`
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
 // 1. Botón con estilo Glassmorphism y CSS Puro
 const GlassButton = ({ children, onClick, className = '', style = {} }) => {
@@ -39,39 +70,22 @@ const NewsTicker = ({ participants = [] }) => {
   );
 };
 
-// Componente decorativo: Tablero de Ajedrez ilustrado de fondo
+// Componente decorativo: Tablero con react-chessboard sin jugabilidad
 const ChessBoardDecoration = () => {
-  const boardLayout = [
-    ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
-    ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
-    ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
-  ];
-
   return (
-    <div className="chess-grid">
-      {boardLayout.map((row, rIdx) =>
-        row.map((cell, cIdx) => {
-          const isDark = (rIdx + cIdx) % 2 === 1;
-          return (
-            <div
-              key={`${rIdx}-${cIdx}`}
-              className={isDark ? 'chess-cell-dark' : 'chess-cell-light'}
-            >
-              {cell}
-            </div>
-          );
-        })
-      )}
+    <div className="chess-board-wrapper">
+      <Chessboard 
+        position="start" 
+        arePiecesDraggable={false}
+        boardWidth={440}
+        customDarkSquareStyle={{ backgroundColor: '#b88b4a' }}
+        customLightSquareStyle={{ backgroundColor: '#e3c193' }}
+      />
     </div>
   );
 };
 
-// Componente Estandarizado de Cabecera con posiciones verticales fijas
+// Componente Estandarizado de Cabecera con posiciones verticales fijas y animación de transición
 const BoardOverlayHeader = ({ subtitle, children }) => {
   return (
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -88,17 +102,20 @@ const BoardOverlayHeader = ({ subtitle, children }) => {
         zIndex: 10,
         padding: '10px'
       }}>
-        <div style={{ height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {/* Contenedor animado del subtítulo */}
+        <div key={`sub-${subtitle}`} className="fade-transition" style={{ height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <h2 className="font-jersey-15" style={{ fontSize: '1.8rem', color: 'white', textShadow: '0 4px 4px rgba(0,0,0,0.9)', margin: 0 }}>
             {subtitle}
           </h2>
         </div>
 
+        {/* Título principal fijo */}
         <h1 className="font-jersey-20" style={{ fontSize: '3.6rem', color: 'white', textShadow: '0 6px 6px rgba(0,0,0,1)', margin: '4px 0 12px 0', lineHeight: 1 }}>
           Ajedrez UNViMe
         </h1>
 
-        <div style={{ display: 'flex', justifyContent: 'center', width: '100%', minHeight: '60px', alignItems: 'center' }}>
+        {/* Contenedor animado de las opciones y botones */}
+        <div key={`opts-${subtitle}`} className="fade-transition" style={{ display: 'flex', justifyContent: 'center', width: '100%', minHeight: '60px', alignItems: 'center' }}>
           {children}
         </div>
       </div>
@@ -181,7 +198,7 @@ const DifficultyScreen = ({ modeTitle, onSelectDifficulty, onBack }) => {
             style={{ padding: '8px 10px', fontSize: '1.3rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(46, 117, 89, 0.4)' }}
           >
             <span>FACIL</span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>100-300 ELO</span>
+            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>800-1200 ELO</span>
           </GlassButton>
 
           <GlassButton 
@@ -189,7 +206,7 @@ const DifficultyScreen = ({ modeTitle, onSelectDifficulty, onBack }) => {
             style={{ padding: '8px 10px', fontSize: '1.3rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(212, 175, 55, 0.4)' }}
           >
             <span>MEDIO</span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>400-800 ELO</span>
+            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>800-1700 ELO</span>
           </GlassButton>
 
           <GlassButton 
@@ -197,7 +214,7 @@ const DifficultyScreen = ({ modeTitle, onSelectDifficulty, onBack }) => {
             style={{ padding: '8px 10px', fontSize: '1.3rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(180, 50, 50, 0.4)' }}
           >
             <span>DIFICIL</span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>900-1500 ELO</span>
+            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>1800+ ELO</span>
           </GlassButton>
         </div>
       </BoardOverlayHeader>
@@ -272,19 +289,8 @@ const ColorSelectionScreen = ({ modeTitle, onSelectColor, onBack }) => {
 
 // 7. Pantalla Pre-Partida
 const PreGameScreen = ({ modeTitle, difficultyLabel, onStartGame, onBack }) => {
-  const boardLayout = [
-    ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
-    ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
-    ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
-  ];
-
   return (
-    <div className="screen-container" style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '50px', userSelect: 'none', padding: 0, position: 'relative' }}>
+    <div className="screen-container fade-transition" style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '50px', userSelect: 'none', padding: 0, position: 'relative' }}>
       
       <div style={{
         width: '320px',
@@ -340,7 +346,7 @@ const PreGameScreen = ({ modeTitle, difficultyLabel, onStartGame, onBack }) => {
         </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', width: '460px', gap: '8px', marginLeft: '260px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', width: '460px', gap: '8px', marginLeft: '260px', zIndex: 10 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
           <span className="font-jersey-15" style={{ fontSize: '1.6rem', color: 'white' }}>
             {modeTitle.includes('Stockfish') ? 'Stockfish' : modeTitle.includes('IA') ? 'IA UNViMe' : 'Jugador 2'}
@@ -348,20 +354,14 @@ const PreGameScreen = ({ modeTitle, difficultyLabel, onStartGame, onBack }) => {
           <span className="font-jersey-15" style={{ fontSize: '1.6rem', color: 'white' }}>15:00</span>
         </div>
 
-        <div className="chess-grid" style={{ width: '460px', height: '460px', margin: 0 }}>
-          {boardLayout.map((row, rIdx) =>
-            row.map((cell, cIdx) => {
-              const isDark = (rIdx + cIdx) % 2 === 1;
-              return (
-                <div
-                  key={`${rIdx}-${cIdx}`}
-                  className={isDark ? 'chess-cell-dark' : 'chess-cell-light'}
-                >
-                  {cell}
-                </div>
-              );
-            })
-          )}
+        <div className="chess-board-wrapper" style={{ width: '460px', height: '460px' }}>
+          <Chessboard 
+            position="start" 
+            arePiecesDraggable={false}
+            boardWidth={460}
+            customDarkSquareStyle={{ backgroundColor: '#b88b4a' }}
+            customLightSquareStyle={{ backgroundColor: '#e3c193' }}
+          />
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
@@ -382,8 +382,6 @@ export default function App() {
 
   const projectParticipants = [
     "Rol, nombre, nombre, nombre",
-    "Perla Quispe (Encargada UX)",
-    "Carlos Santiago Ledesma",
     "Universidad Nacional de Villa Mercedes (UNViMe)"
   ];
 
@@ -413,14 +411,16 @@ export default function App() {
   };
 
   const getDifficultyDetails = () => {
-    if (selectedDifficulty === 'easy') return { name: 'FACIL', elo: '100-300 ELO' };
-    if (selectedDifficulty === 'medium') return { name: 'MEDIO', elo: '400-800 ELO' };
-    if (selectedDifficulty === 'hard') return { name: 'DIFICIL', elo: '900-1500 ELO' };
+    if (selectedDifficulty === 'easy') return { name: 'FACIL', elo: '800-1200 ELO' };
+    if (selectedDifficulty === 'medium') return { name: 'MEDIO', elo: '1200-1700 ELO' };
+    if (selectedDifficulty === 'hard') return { name: 'DIFICIL', elo: '1800+ ELO' };
     return null;
   };
 
   return (
-    <main style={{ width: '100%', minHeight: '100vh', backgroundColor: '#0C0F1E' }}>
+    <main style={{ width: '100%', minHeight: '100vh', backgroundColor: '#0C0F1E', position: 'relative' }}>
+      <BackgroundParticles />
+
       {currentScreen === 'welcome' && (
         <WelcomeScreen 
           onStartClick={() => setCurrentScreen('modes')} 
