@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Jersey+15&family=Jersey+20&display=swap');
 
-/* Estilos base */
 * {
   box-sizing: border-box;
 }
@@ -14,7 +13,6 @@ body {
   position: relative;
 }
 
-/* Clases tipográficas personalizadas */
 .font-jersey-15 {
   font-family: 'Jersey 15', sans-serif;
 }
@@ -35,7 +33,7 @@ body {
   animation: ticker 30s linear infinite;
 }
 
-/* Animación y estilos de partículas flotantes en el fondo */
+/* Partículas flotantes */
 @keyframes floatParticle {
   0% {
     transform: translateY(100vh) scale(0.8);
@@ -72,64 +70,7 @@ body {
   box-shadow: 0 0 10px rgba(231, 122, 247, 0.7);
 }
 
-/* Contenedores y efectos visuales */
-.screen-container {
-  position: relative;
-  min-height: 100vh;
-  width: 100%;
-  background-color: transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  z-index: 2;
-}
-
-.glass-button {
-  background-color: rgba(231, 122, 247, 0.35);
-  border: 2px solid #312525;
-  padding: 12px 40px;
-  border-radius: 16px;
-  color: white;
-  font-size: 2rem;
-  font-family: 'Jersey 15', sans-serif;
-  letter-spacing: 1px;
-  backdrop-filter: blur(8px);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-}
-
-.glass-button:hover {
-  background-color: rgba(231, 122, 247, 0.55);
-  transform: scale(1.05);
-}
-
-.glass-button:active {
-  transform: scale(0.95);
-}
-
-/* Contenedor del tablero con react-chessboard */
-.chess-board-wrapper {
-  width: 360px;
-  height: 360px;
-  border: 4px solid #312525;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-  opacity: 0.9;
-  user-select: none;
-}
-
-@media (min-width: 640px) {
-  .chess-board-wrapper {
-    width: 440px;
-    height: 440px;
-  }
-}
-
-/* Animaciones de transición suave para subtítulos y botones */
+/* Transiciones */
 @keyframes fadeInScale {
   from {
     opacity: 0;

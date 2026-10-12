@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Chessboard } from 'react-chessboard';
+import './App.css';
 
 // Componente de Partículas Flotantes en Movimiento
 const BackgroundParticles = () => {
@@ -31,7 +32,7 @@ const BackgroundParticles = () => {
   );
 };
 
-// 1. Botón con estilo Glassmorphism y CSS Puro
+// 1. Botón con estilo Glassmorphism
 const GlassButton = ({ children, onClick, className = '', style = {} }) => {
   return (
     <button
@@ -51,19 +52,8 @@ const NewsTicker = ({ participants = [] }) => {
     : "Rol, nombre, nombre, nombre   •   Rol, nombre, nombre, nombre   •   Ajedrez UNViMe";
 
   return (
-    <div style={{
-      width: '100%',
-      backgroundColor: 'rgba(12, 15, 30, 0.9)',
-      borderTop: '1px solid #312525',
-      padding: '8px 0',
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      zIndex: 30
-    }}>
-      <div className="animate-ticker font-jersey-15" style={{ fontSize: '1.1rem', color: 'rgba(244, 194, 251, 0.8)', letterSpacing: '2px' }}>
+    <div className="news-ticker-container">
+      <div className="animate-ticker font-jersey-15 news-ticker-text">
         <span>{textString}</span>
       </div>
     </div>
@@ -88,34 +78,21 @@ const ChessBoardDecoration = () => {
 // Componente Estandarizado de Cabecera con posiciones verticales fijas y animación de transición
 const BoardOverlayHeader = ({ subtitle, children }) => {
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="board-overlay-container">
       <ChessBoardDecoration />
 
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        zIndex: 10,
-        padding: '10px'
-      }}>
-        {/* Contenedor animado del subtítulo */}
-        <div key={`sub-${subtitle}`} className="fade-transition" style={{ height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <h2 className="font-jersey-15" style={{ fontSize: '1.8rem', color: 'white', textShadow: '0 4px 4px rgba(0,0,0,0.9)', margin: 0 }}>
+      <div className="board-overlay-content">
+        <div key={`sub-${subtitle}`} className="fade-transition subtitle-container">
+          <h2 className="font-jersey-15 subtitle-text">
             {subtitle}
           </h2>
         </div>
 
-        {/* Título principal fijo */}
-        <h1 className="font-jersey-20" style={{ fontSize: '3.6rem', color: 'white', textShadow: '0 6px 6px rgba(0,0,0,1)', margin: '4px 0 12px 0', lineHeight: 1 }}>
+        <h1 className="font-jersey-20 main-title-text">
           Ajedrez UNViMe
         </h1>
 
-        {/* Contenedor animado de las opciones y botones */}
-        <div key={`opts-${subtitle}`} className="fade-transition" style={{ display: 'flex', justifyContent: 'center', width: '100%', minHeight: '60px', alignItems: 'center' }}>
+        <div key={`opts-${subtitle}`} className="fade-transition options-container">
           {children}
         </div>
       </div>
@@ -123,10 +100,10 @@ const BoardOverlayHeader = ({ subtitle, children }) => {
   );
 };
 
-// 3. Pantalla de Bienvenida (Incluye el NewsTicker)
+// 3. Pantalla de Bienvenida
 const WelcomeScreen = ({ onStartClick, participants }) => {
   return (
-    <div className="screen-container" style={{ userSelect: 'none' }}>
+    <div className="screen-container">
       <BoardOverlayHeader subtitle="¡Bienvenido!">
         <GlassButton onClick={onStartClick}>
           Nueva Partida
@@ -141,36 +118,27 @@ const WelcomeScreen = ({ onStartClick, participants }) => {
 // 4. Pantalla de Selección de Modo
 const GameModeScreen = ({ onSelectMode, onBack }) => {
   return (
-    <div className="screen-container" style={{ userSelect: 'none' }}>
+    <div className="screen-container">
       <BoardOverlayHeader subtitle="NUEVA PARTIDA">
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '8px', 
-          width: '100%', 
-          maxWidth: '560px' 
-        }}>
-          <GlassButton onClick={() => onSelectMode('stockfish')} style={{ padding: '6px 10px', fontSize: '1.2rem', flex: 1 }}>
+        <div className="game-mode-options">
+          <GlassButton onClick={() => onSelectMode('stockfish')} className="mode-btn">
             vs. Stockfish
           </GlassButton>
 
-          <GlassButton onClick={() => onSelectMode('ai')} style={{ padding: '6px 10px', fontSize: '1.2rem', flex: 1 }}>
+          <GlassButton onClick={() => onSelectMode('ai')} className="mode-btn">
             vs. IA UNViMe
           </GlassButton>
 
-          <GlassButton onClick={() => onSelectMode('pvp')} style={{ padding: '6px 10px', fontSize: '1.2rem', flex: 1 }}>
+          <GlassButton onClick={() => onSelectMode('pvp')} className="mode-btn">
             vs jugador
           </GlassButton>
         </div>
       </BoardOverlayHeader>
 
-      <div style={{ position: 'absolute', bottom: '50px', left: '40px', zIndex: 20 }}>
+      <div className="back-button-absolute">
         <button 
           onClick={onBack}
-          className="glass-button font-jersey-15"
-          style={{ padding: '8px 24px', fontSize: '1.8rem' }}
+          className="glass-button font-jersey-15 back-btn-custom"
         >
           VOLVER
         </button>
@@ -182,48 +150,39 @@ const GameModeScreen = ({ onSelectMode, onBack }) => {
 // 5. Pantalla de Selección de Dificultad
 const DifficultyScreen = ({ modeTitle, onSelectDifficulty, onBack }) => {
   return (
-    <div className="screen-container" style={{ userSelect: 'none' }}>
+    <div className="screen-container">
       <BoardOverlayHeader subtitle={modeTitle}>
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '8px', 
-          width: '100%', 
-          maxWidth: '580px' 
-        }}>
+        <div className="difficulty-options">
           <GlassButton 
             onClick={() => onSelectDifficulty('easy')} 
-            style={{ padding: '8px 10px', fontSize: '1.3rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(46, 117, 89, 0.4)' }}
+            className="diff-btn-easy"
           >
             <span>FACIL</span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>800-1200 ELO</span>
+            <span className="elo-subtext">800-1200 ELO</span>
           </GlassButton>
 
           <GlassButton 
             onClick={() => onSelectDifficulty('medium')} 
-            style={{ padding: '8px 10px', fontSize: '1.3rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(212, 175, 55, 0.4)' }}
+            className="diff-btn-medium"
           >
             <span>MEDIO</span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>800-1700 ELO</span>
+            <span className="elo-subtext">800-1700 ELO</span>
           </GlassButton>
 
           <GlassButton 
             onClick={() => onSelectDifficulty('hard')} 
-            style={{ padding: '8px 10px', fontSize: '1.3rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(180, 50, 50, 0.4)' }}
+            className="diff-btn-hard"
           >
             <span>DIFICIL</span>
-            <span style={{ fontSize: '0.85rem', opacity: 0.8}}>1800+ ELO</span>
+            <span className="elo-subtext">1800+ ELO</span>
           </GlassButton>
         </div>
       </BoardOverlayHeader>
 
-      <div style={{ position: 'absolute', bottom: '50px', left: '40px', zIndex: 20 }}>
+      <div className="back-button-absolute">
         <button 
           onClick={onBack}
-          className="glass-button font-jersey-15"
-          style={{ padding: '8px 24px', fontSize: '1.8rem' }}
+          className="glass-button font-jersey-15 back-btn-custom"
         >
           VOLVER
         </button>
@@ -235,50 +194,29 @@ const DifficultyScreen = ({ modeTitle, onSelectDifficulty, onBack }) => {
 // 6. Pantalla de Selección de Color de Piezas
 const ColorSelectionScreen = ({ modeTitle, onSelectColor, onBack }) => {
   return (
-    <div className="screen-container" style={{ userSelect: 'none' }}>
+    <div className="screen-container">
       <BoardOverlayHeader subtitle={modeTitle}>
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '12px', 
-          width: '100%', 
-          maxWidth: '520px' 
-        }}>
+        <div className="color-selection-options">
           <GlassButton 
             onClick={() => onSelectColor('blancas')} 
-            style={{ 
-              padding: '10px 24px', 
-              fontSize: '1.6rem', 
-              flex: 1, 
-              backgroundColor: 'rgba(255, 255, 255, 0.25)', 
-              borderColor: 'rgba(255, 255, 255, 0.4)' 
-            }}
+            className="color-btn-white"
           >
             BLANCAS
           </GlassButton>
 
           <GlassButton 
             onClick={() => onSelectColor('negras')} 
-            style={{ 
-              padding: '10px 24px', 
-              fontSize: '1.6rem', 
-              flex: 1, 
-              backgroundColor: 'rgba(0, 0, 0, 0.45)', 
-              borderColor: 'rgba(0, 0, 0, 0.6)' 
-            }}
+            className="color-btn-black"
           >
             NEGRAS
           </GlassButton>
         </div>
       </BoardOverlayHeader>
 
-      <div style={{ position: 'absolute', bottom: '50px', left: '40px', zIndex: 20 }}>
+      <div className="back-button-absolute">
         <button 
           onClick={onBack}
-          className="glass-button font-jersey-15"
-          style={{ padding: '8px 24px', fontSize: '1.8rem' }}
+          className="glass-button font-jersey-15 back-btn-custom"
         >
           VOLVER
         </button>
@@ -290,39 +228,25 @@ const ColorSelectionScreen = ({ modeTitle, onSelectColor, onBack }) => {
 // 7. Pantalla Pre-Partida
 const PreGameScreen = ({ modeTitle, difficultyLabel, onStartGame, onBack }) => {
   return (
-    <div className="screen-container fade-transition" style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '50px', userSelect: 'none', padding: 0, position: 'relative' }}>
+    <div className="screen-container fade-transition pre-game-screen-container">
       
-      <div style={{
-        width: '320px',
-        height: '100vh',
-        backgroundColor: '#161122',
-        borderRight: '2px solid #312525',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        padding: '50px 30px 120px 30px',
-        boxShadow: '5px 0 25px rgba(0,0,0,0.6)',
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        zIndex: 10
-      }}>
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <h1 className="font-jersey-20" style={{ fontSize: '4rem', color: 'white', margin: 0, lineHeight: 1, textShadow: '0 4px 4px rgba(0,0,0,0.8)' }}>
+      <div className="pre-game-sidebar">
+        <div className="sidebar-title-container">
+          <h1 className="font-jersey-20 sidebar-title">
             Ajedrez<br/>UNViMe
           </h1>
         </div>
 
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <p className="font-jersey-15" style={{ fontSize: '1.8rem', color: 'white', margin: 0 }}>
+        <div className="sidebar-info-container">
+          <p className="font-jersey-15 sidebar-mode-title">
             {modeTitle}
           </p>
           {difficultyLabel && (
             <>
-              <p className="font-jersey-15" style={{ fontSize: '2.2rem', color: '#f4c2fb', margin: 0, letterSpacing: '1px' }}>
+              <p className="font-jersey-15 sidebar-diff-name">
                 {difficultyLabel.name}
               </p>
-              <span style={{ fontSize: '1rem', color: '#9ca3af'}}>
+              <span className="sidebar-elo-text">
                 ({difficultyLabel.elo})
               </span>
             </>
@@ -336,25 +260,24 @@ const PreGameScreen = ({ modeTitle, difficultyLabel, onStartGame, onBack }) => {
         </div>
       </div>
 
-      <div style={{ position: 'absolute', bottom: '50px', left: '40px', zIndex: 40 }}>
+      <div className="pre-game-back-container">
         <button 
           onClick={onBack}
-          className="glass-button font-jersey-15"
-          style={{ padding: '8px 24px', fontSize: '1.8rem' }}
+          className="glass-button font-jersey-15 back-btn-custom"
         >
           VOLVER
         </button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', width: '460px', gap: '8px', marginLeft: '260px', zIndex: 10 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
-          <span className="font-jersey-15" style={{ fontSize: '1.6rem', color: 'white' }}>
+      <div className="pre-game-board-container">
+        <div className="clock-row">
+          <span className="font-jersey-15 clock-text">
             {modeTitle.includes('Stockfish') ? 'Stockfish' : modeTitle.includes('IA') ? 'IA UNViMe' : 'Jugador 2'}
           </span>
-          <span className="font-jersey-15" style={{ fontSize: '1.6rem', color: 'white' }}>15:00</span>
+          <span className="font-jersey-15 clock-text">15:00</span>
         </div>
 
-        <div className="chess-board-wrapper" style={{ width: '460px', height: '460px' }}>
+        <div className="chess-board-wrapper pre-game-board-wrapper">
           <Chessboard 
             position="start" 
             arePiecesDraggable={false}
@@ -364,9 +287,9 @@ const PreGameScreen = ({ modeTitle, difficultyLabel, onStartGame, onBack }) => {
           />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
-          <span className="font-jersey-15" style={{ fontSize: '1.6rem', color: 'white' }}>Jugador</span>
-          <span className="font-jersey-15" style={{ fontSize: '1.6rem', color: 'white' }}>15:00</span>
+        <div className="clock-row">
+          <span className="font-jersey-15 clock-text">Jugador</span>
+          <span className="font-jersey-15 clock-text">15:00</span>
         </div>
       </div>
     </div>
@@ -418,7 +341,7 @@ export default function App() {
   };
 
   return (
-    <main style={{ width: '100%', minHeight: '100vh', backgroundColor: '#0C0F1E', position: 'relative' }}>
+    <main className="app-main">
       <BackgroundParticles />
 
       {currentScreen === 'welcome' && (
