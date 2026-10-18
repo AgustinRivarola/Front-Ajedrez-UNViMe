@@ -1,0 +1,29 @@
+@import './tokens.css';
+@import url('https://fonts.googleapis.com/css2?family=Jersey+15&family=Jersey+20&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow: hidden;
+  position: relative;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--fuente-texto);
+  font-size: 22px;
+}
+
+button,
+input {
+  font: inherit;
+}

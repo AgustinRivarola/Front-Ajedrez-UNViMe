@@ -1,0 +1,65 @@
+import { useEffect, useRef } from 'react';
+import Texto from '../../atoms/Texto/index.js';
+
+const particulas = Array.from({ length: 48 }, (_, indice) => ({
+  izquierda: `${(indice * 37) % 100}%`,
+  demora: `${-((indice * 11) % 32)}s`,
+  duracion: `${18 + ((indice * 7) % 17)}s`,
+}));
+
+const Dialogo = ({ titulo, variante, onCerrar, children }) => {
+  const dialogo = useRef(null);
+
+  useEffect(() => {
+    const focoAnterior = document.activeElement;
+    dialogo.current?.querySelector('button:not(:disabled)')?.focus();
+
+    const manejarTecla = (evento) => {
+      if (evento.key === 'Escape') {
+        onCerrar();
+      }
+    };
+
+    document.addEventListener('keydown', manejarTecla);
+    return () => {
+      document.removeEventListener('keydown', manejarTecla);
+      if (focoAnterior instanceof HTMLElement) focoAnterior.focus();
+    };
+  }, [onCerrar]);
+
+  return (
+    <div className={`capa-modal capa-modal--${variante}`}>
+      <div className="modal-velo" />
+      {variante === 'victoria' && (
+        <div className="confeti" aria-hidden="true">
+          {particulas.map(({ izquierda, demora, duracion }, indice) => (
+            <span
+              key={indice}
+              style={{
+                left: izquierda,
+                animationDelay: demora,
+                animationDuration: duracion,
+              }}
+            />
+          ))}
+        </div>
+      )}
+      <section
+        aria-labelledby="titulo-dialogo"
+        aria-modal="true"
+        className="dialogo-marco"
+        ref={dialogo}
+        role="dialog"
+      >
+        <div className="dialogo-contenido">
+          <Texto as="h2" className="dialogo-titulo" id="titulo-dialogo">
+            {titulo}
+          </Texto>
+          {children}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Dialogo;
