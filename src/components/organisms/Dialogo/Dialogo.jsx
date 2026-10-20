@@ -9,6 +9,13 @@ const particulas = Array.from({ length: 48 }, (_, indice) => ({
 
 const Dialogo = ({ titulo, variante, onCerrar, children }) => {
   const dialogo = useRef(null);
+  const alCerrar = useRef(onCerrar);
+
+  // Se guarda la última función recibida para que el efecto no se vuelva a
+  // ejecutar (re-enfocar, re-registrar el listener) cuando la página se redibuja.
+  useEffect(() => {
+    alCerrar.current = onCerrar;
+  });
 
   useEffect(() => {
     const focoAnterior = document.activeElement;
@@ -16,7 +23,7 @@ const Dialogo = ({ titulo, variante, onCerrar, children }) => {
 
     const manejarTecla = (evento) => {
       if (evento.key === 'Escape') {
-        onCerrar();
+        alCerrar.current?.();
       }
     };
 
@@ -25,7 +32,7 @@ const Dialogo = ({ titulo, variante, onCerrar, children }) => {
       document.removeEventListener('keydown', manejarTecla);
       if (focoAnterior instanceof HTMLElement) focoAnterior.focus();
     };
-  }, [onCerrar]);
+  }, []);
 
   return (
     <div className={`capa-modal capa-modal--${variante}`}>

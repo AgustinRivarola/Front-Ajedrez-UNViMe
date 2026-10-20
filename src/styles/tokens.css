@@ -26,6 +26,8 @@
   --color-piezas-negras: #0c0c10;
   --color-borde-negro: #555;
   --color-reloj-vacio: #ff2a2a;
+  --color-casilla-seleccionada: rgb(231 122 247 / 60%);
+  --color-destino-jugada: rgb(60 20 80 / 45%);
   --color-coordenada: rgb(120 80 50 / 80%);
 
   --fuente-titulo: "Jersey 20", sans-serif;
