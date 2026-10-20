@@ -2,7 +2,6 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { crearPartidasApi } from '../../src/services/partidasApi.js';
 
-// Cliente falso que registra la llamada y devuelve `respuesta`.
 const clienteFalso = (respuesta) => {
   const llamadas = [];
   return {
@@ -14,11 +13,11 @@ const clienteFalso = (respuesta) => {
 
 describe('partidasApi', () => {
   it('crea la partida con los valores traducidos del contrato POST /games', async () => {
-    const cliente = clienteFalso({ id: 'g1', fen: 'x w - - 0 1', status: 'EN_PROGRESO' });
+    const cliente = clienteFalso({ id: 'g1', fen: 'x w - - 0 1', status: 'EN_PROGRESO', turn: 'WHITE' });
     const api = crearPartidasApi(cliente);
-    const partida = await api.crearPartida({ modo: 'stockfish', alias: 'Lucía', dificultad: 'p1', color: 'b' });
+    const partida = await api.crearPartida({ modo: 'stockfish', alias: 'Lucía', dificultad: 'FACIL', color: 'b' });
     assert.deepEqual(cliente.llamadas[0], ['POST', '/games', {
-      mode: 'STOCKFISH', alias: 'Lucía', difficulty: 'p1', playerColor: 'BLACK',
+      mode: 'STOCKFISH', alias: 'Lucía', difficulty: 'FACIL', playerColor: 'BLACK',
     }]);
     assert.equal(partida.id, 'g1');
     assert.equal(partida.estado, 'EN_PROGRESO');
@@ -43,13 +42,10 @@ describe('partidasApi', () => {
     });
   });
 
-  it('pide los destinos legales de una casilla', async () => {
-    const api = crearPartidasApi(clienteFalso(['e3', 'e4']));
-    assert.deepEqual(await api.obtenerDestinos('g1', 'e2'), ['e3', 'e4']);
-  });
-
-  it('acepta destinos como objetos o dentro de { moves }', async () => {
-    const api = crearPartidasApi(clienteFalso({ moves: [{ to: 'e3' }, { to: 'e4' }] }));
+  it('lee los destinos del formato real { square, moves }', async () => {
+    const api = crearPartidasApi(clienteFalso({
+      square: 'e2', moves: [{ from: 'e2', to: 'e3', san: 'e3' }, { from: 'e2', to: 'e4', san: 'e4' }],
+    }));
     assert.deepEqual(await api.obtenerDestinos('g1', 'e2'), ['e3', 'e4']);
   });
 
@@ -57,7 +53,7 @@ describe('partidasApi', () => {
     const cliente = clienteFalso({});
     const api = crearPartidasApi(cliente);
     await api.jugarMaquina('g1');
-    await api.rendirse('g1', 'w');
+    const abandono = await api.rendirse('g1', 'w');
     await api.pausar('g1');
     await api.reanudar('g1');
     assert.deepEqual(cliente.llamadas.map(([m, ruta]) => `${m} ${ruta}`), [
@@ -67,20 +63,21 @@ describe('partidasApi', () => {
       'POST /games/g1/resume',
     ]);
     assert.deepEqual(cliente.llamadas[1][2], { color: 'WHITE' });
+    assert.equal(abandono.estado, undefined);
   });
 
   it('lee los perfiles de dificultad', async () => {
-    const api = crearPartidasApi(clienteFalso([{ id: 7, name: 'Fácil', mode: 'STOCKFISH' }]));
-    assert.deepEqual(await api.obtenerPerfiles(), [{ valor: '7', nombre: 'Fácil', modo: 'STOCKFISH' }]);
+    const api = crearPartidasApi(clienteFalso([{ id: 'u', name: 'FACIL', skillLevel: 3 }]));
+    assert.deepEqual(await api.obtenerPerfiles(), [{ valor: 'FACIL', nombre: 'FACIL', nivelMotor: 3 }]);
   });
 
-  it('normaliza una partida con su lista de jugadas', async () => {
+  it('lee el detalle de una partida con su lista de jugadas', async () => {
     const api = crearPartidasApi(clienteFalso({
-      id: 'g1', fen: 'f', status: 'FINALIZADA', result: '1-0', endReason: 'CHECKMATE', moves: [{ san: 'e4' }, { san: 'e5' }],
+      id: 'g1', fen: 'f', status: 'FINALIZADA', result: '1-0', turn: 'BLACK',
+      moves: [{ san: 'e4', color: 'WHITE', fenAfter: 'a' }, { san: 'e5', color: 'BLACK', fenAfter: 'b' }],
     }));
     const partida = await api.obtenerPartida('g1');
     assert.equal(partida.resultado, '1-0');
-    assert.equal(partida.motivo, 'CHECKMATE');
     assert.deepEqual(partida.jugadas.map((j) => j.san), ['e4', 'e5']);
   });
 });

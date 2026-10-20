@@ -1,6 +1,3 @@
-// Interpreta el resultado y el motivo de cierre que devuelve la API.
-// Acepta notación PGN ("1-0", "0-1", "1/2-1/2") o texto ("WHITE", "BLACK", "DRAW").
-
 export const ganadorDesdeResultado = (resultado) => {
   const valor = String(resultado ?? '').toUpperCase();
   if (valor === '1-0' || valor.startsWith('WHITE')) return 'w';
@@ -24,8 +21,6 @@ export const describirMotivo = (motivo) => {
   return coincidencia ? coincidencia[1] : null;
 };
 
-// Arma lo que muestra el diálogo final.
-// `nombres` = { w: 'nombre de las blancas', b: 'nombre de las negras' }
 export const construirResultado = ({ resultado, motivo, nombres, idPartida }) => {
   const ganador = ganadorDesdeResultado(resultado);
   const razon = describirMotivo(motivo);

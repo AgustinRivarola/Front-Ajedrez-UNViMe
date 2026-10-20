@@ -1,6 +1,4 @@
-// Traducción entre los valores que usa la interfaz y los que usa la API.
-// Los valores de la API salen de los enums de 04 · Modelado de Datos
-// (game_mode: LOCAL | STOCKFISH | AI, piece_color: WHITE | BLACK).
+// Traduce entre los valores de la interfaz y los de la API.
 
 const MODOS_A_API = { jugador: 'LOCAL', stockfish: 'STOCKFISH', unvime: 'AI' };
 
@@ -14,7 +12,6 @@ export const colorDesdeApi = (color) => (
 
 export const colorOpuesto = (color) => (color === 'w' ? 'b' : 'w');
 
-// Color al que le toca mover según el campo "turno activo" del FEN.
 export const turnoDesdeFen = (fen) => (fen?.split(' ')[1] === 'b' ? 'b' : 'w');
 
 // react-chessboard solo necesita la parte de las piezas del FEN.

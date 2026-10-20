@@ -37,14 +37,25 @@ describe('clienteApi', () => {
 
   it('convierte el error del backend en ErrorApi', async () => {
     const cliente = crear(async () => respuesta(400, {
-      error: { code: 'INVALID_MOVE', message: 'Jugada inválida', details: { from: 'e2' } },
+      error: { code: 'ILLEGAL_MOVE', message: 'Illegal move: e2e5', retryable: false },
     }));
     await assert.rejects(cliente.post('/games/1/moves', {}), (error) => {
       assert.ok(error instanceof ErrorApi);
-      assert.equal(error.codigo, 'INVALID_MOVE');
-      assert.equal(error.message, 'Jugada inválida');
-      assert.deepEqual(error.detalles, { from: 'e2' });
+      assert.equal(error.codigo, 'ILLEGAL_MOVE');
+      assert.equal(error.message, 'Illegal move: e2e5');
+      assert.equal(error.reintentable, false);
       assert.equal(error.estado, 400);
+      return true;
+    });
+  });
+
+  it('marca como reintentables los errores que el backend declara reintentables', async () => {
+    const cliente = crear(async () => respuesta(504, {
+      error: { code: 'ENGINE_TIMEOUT', message: 'Engine did not respond within 3000ms', retryable: true },
+    }));
+    await assert.rejects(cliente.post('/games/1/engine-move'), (error) => {
+      assert.equal(error.codigo, 'ENGINE_TIMEOUT');
+      assert.equal(error.reintentable, true);
       return true;
     });
   });

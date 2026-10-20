@@ -16,7 +16,8 @@ import PlantillaMenu from '../../components/templates/PlantillaMenu/index.js';
 import PlantillaPartida from '../../components/templates/PlantillaPartida/index.js';
 import { usePartida } from '../../hooks/usePartida.js';
 import { partidasApi } from '../../services/index.js';
-import { nivelesParaModo } from '../../utils/niveles.js';
+import { mensajeDeError } from '../../utils/mensajesError.js';
+import { nivelesDesdePerfiles } from '../../utils/niveles.js';
 import { construirResultado } from '../../utils/resultadoPartida.js';
 import { obtenerOpcionesFaltantes } from '../../utils/validarConfiguracion.js';
 
@@ -57,7 +58,7 @@ const PaginaAjedrez = () => {
       setPerfiles(await partidasApi.obtenerPerfiles());
     } catch (fallo) {
       setPerfiles([]);
-      setErrorNiveles(`No se pudieron cargar los niveles: ${fallo.message}`);
+      setErrorNiveles(`No se pudieron cargar los niveles: ${mensajeDeError(fallo)}`);
     }
   };
 
@@ -78,6 +79,10 @@ const PaginaAjedrez = () => {
     setNombres((actuales) => ({ ...actuales, [jugador]: nombre }));
   };
 
+  const terminarNombre = (jugador, porDefecto) => {
+    setNombres((actuales) => ({ ...actuales, [jugador]: actuales[jugador].trim() || porDefecto }));
+  };
+
   const comenzarPartida = async () => {
     const colorElegido = configuracion.color === 'r'
       ? (Math.random() < 0.5 ? 'w' : 'b')
@@ -86,21 +91,21 @@ const PaginaAjedrez = () => {
     setCierreOculto(false);
     const creada = await juego.iniciar({
       modo: configuracion.modo,
-      alias: nombres.jugadorUno || 'Jugador 1',
+      alias: nombres.jugadorUno.trim() || 'Jugador 1',
       dificultad: configuracion.modo === 'jugador' ? '' : configuracion.dificultad,
       color: colorElegido,
     });
     if (creada) setPantalla('partida');
   };
 
-  const nombreUno = nombres.jugadorUno || 'Jugador 1';
+  const nombreUno = nombres.jugadorUno.trim() || 'Jugador 1';
   const rival = partida.modo === 'jugador'
-    ? nombres.jugadorDos || 'Jugador 2'
+    ? nombres.jugadorDos.trim() || 'Jugador 2'
     : nombresRival[partida.modo] || 'Jugador 2';
   const opcionesFaltantes = obtenerOpcionesFaltantes(configuracion);
   const minutos = Number(configuracion.tiempo) || 0;
   const niveles = configuracion.modo && configuracion.modo !== 'jugador'
-    ? nivelesParaModo(perfiles, configuracion.modo)
+    ? nivelesDesdePerfiles(perfiles)
     : [];
 
   const resultado = partida.cierre
@@ -176,14 +181,16 @@ const PaginaAjedrez = () => {
                   : nombresRival[configuracion.modo] || 'Jugador 2'
               }
               onCambiarNombre={(nombre) => cambiarNombre('jugadorDos', nombre)}
+              onTerminarNombre={() => terminarNombre('jugadorDos', 'Jugador 2')}
             />
             <Tablero color={configuracion.color === 'b' ? 'b' : 'w'} />
             <PlacaJugador
               etiqueta="Nombre del primer jugador"
-              editable={configuracion.modo === 'jugador'}
+              editable
               minutos={minutos}
               nombre={nombres.jugadorUno}
               onCambiarNombre={(nombre) => cambiarNombre('jugadorUno', nombre)}
+              onTerminarNombre={() => terminarNombre('jugadorUno', 'Jugador 1')}
             />
           </div>
         </PlantillaConfiguracion>

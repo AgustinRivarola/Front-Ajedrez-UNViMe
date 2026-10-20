@@ -1,8 +1,6 @@
 import Boton from '../../atoms/Boton/index.js';
 import Dialogo from '../Dialogo/index.js';
 
-// `resultado` = { tipo: 'victoria' | 'tablas', titulo, mensaje, idPartida }
-// (ver utils/resultadoPartida.js).
 const DialogoVictoria = ({ resultado, onRevisar, onMenu }) => (
   <Dialogo
     onCerrar={onRevisar}

@@ -11,8 +11,7 @@ const Dialogo = ({ titulo, variante, onCerrar, children }) => {
   const dialogo = useRef(null);
   const alCerrar = useRef(onCerrar);
 
-  // Se guarda la última función recibida para que el efecto no se vuelva a
-  // ejecutar (re-enfocar, re-registrar el listener) cuando la página se redibuja.
+  // Evita que el efecto se repita en cada render.
   useEffect(() => {
     alCerrar.current = onCerrar;
   });

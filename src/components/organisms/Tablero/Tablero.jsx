@@ -24,11 +24,6 @@ const crearEstilosCasillas = (seleccionada, destinos) => {
   return estilos;
 };
 
-/**
- * `posicion`: FEN (completo o solo las piezas).
- * `color`: lado que se ve abajo ('w' | 'b'); usa la orientación nativa de react-chessboard.
- * `onCasilla`: si se pasa, el tablero es interactivo (clic para elegir pieza y destino).
- */
 const Tablero = ({
   posicion = POSICION_INICIAL,
   color = 'w',

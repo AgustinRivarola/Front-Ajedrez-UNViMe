@@ -367,12 +367,21 @@
 .lista-jugadas {
   width: min(420px, 92vw);
   height: min(400px, 50vh);
-  overflow: auto;
+  overflow: hidden;
   padding: 28px;
   border-radius: var(--radio-pequeno);
   background: var(--color-panel-jugadas);
   box-shadow: 0 6px 24px var(--sombra-fuerte);
   text-align: center;
+}
+
+.lista-jugadas__interior {
+  height: 100%;
+  overflow: auto;
+  padding: 14px;
+  border: 2px solid rgb(0 0 0 / 40%);
+  border-radius: var(--radio-pequeno);
+  background: var(--color-panel-jugadas-interior);
 }
 
 .lista-jugadas h2 {

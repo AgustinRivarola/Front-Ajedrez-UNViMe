@@ -6,7 +6,6 @@ import {
   normalizarResultadoJugada,
 } from './normalizar.js';
 
-// Una función por endpoint de 08 · Desarrollo Backend.
 export const crearPartidasApi = (cliente) => ({
   obtenerPerfiles: async () => normalizarPerfiles(await cliente.get('/difficulty-profiles')),
 
@@ -37,7 +36,9 @@ export const crearPartidasApi = (cliente) => ({
     await cliente.post(`/games/${id}/engine-move`),
   ),
 
-  rendirse: async (id, color) => cliente.post(`/games/${id}/resign`, { color: colorAApi(color) }),
+  rendirse: async (id, color) => normalizarResultadoJugada(
+    await cliente.post(`/games/${id}/resign`, { color: colorAApi(color) }),
+  ),
 
   pausar: async (id) => cliente.post(`/games/${id}/pause`),
 

@@ -1,13 +1,13 @@
-// Cliente HTTP mínimo. Todos los errores del backend tienen la forma
-// { "error": { "code", "message", "details" } } (ver 08 · Desarrollo Backend).
+// Los errores del backend llegan como { error: { code, message, retryable } }.
 
 export class ErrorApi extends Error {
-  constructor({ codigo, mensaje, detalles, estado }) {
+  constructor({ codigo, mensaje, detalles, estado, reintentable = false }) {
     super(mensaje);
     this.name = 'ErrorApi';
     this.codigo = codigo;
     this.detalles = detalles;
     this.estado = estado;
+    this.reintentable = reintentable;
   }
 }
 
@@ -30,7 +30,7 @@ export const crearClienteApi = ({ baseUrl, fetchFn = (...args) => globalThis.fet
         body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
       });
     } catch {
-      throw new ErrorApi({ codigo: 'SIN_CONEXION', mensaje: MENSAJE_SIN_CONEXION, estado: 0 });
+      throw new ErrorApi({ codigo: 'SIN_CONEXION', mensaje: MENSAJE_SIN_CONEXION, estado: 0, reintentable: true });
     }
 
     const texto = await respuesta.text();
@@ -50,6 +50,7 @@ export const crearClienteApi = ({ baseUrl, fetchFn = (...args) => globalThis.fet
         mensaje: error.message ?? `El servidor respondió con el error ${respuesta.status}.`,
         detalles: error.details,
         estado: respuesta.status,
+        reintentable: error.retryable === true,
       });
     }
 

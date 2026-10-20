@@ -1,34 +1,29 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { nivelesParaModo } from '../../src/utils/niveles.js';
+import { nivelesDesdePerfiles } from '../../src/utils/niveles.js';
 
 const perfiles = [
-  { valor: '1', nombre: 'Fácil', modo: 'STOCKFISH' },
-  { valor: '2', nombre: 'Difícil', modo: 'STOCKFISH' },
-  { valor: '3', nombre: 'Fácil', modo: 'AI' },
+  { valor: 'FACIL', nombre: 'FACIL' },
+  { valor: 'MEDIO', nombre: 'MEDIO' },
+  { valor: 'DIFICIL', nombre: 'DIFICIL' },
 ];
 
-describe('nivelesParaModo', () => {
-  it('filtra los perfiles por el motor del modo elegido', () => {
-    assert.deepEqual(
-      nivelesParaModo(perfiles, 'stockfish').map((n) => n.valor),
-      ['1', '2'],
-    );
-    assert.deepEqual(nivelesParaModo(perfiles, 'unvime').map((n) => n.valor), ['3']);
+describe('nivelesDesdePerfiles', () => {
+  it('conserva el nombre del perfil como valor a enviar y muestra etiquetas en español', () => {
+    assert.deepEqual(nivelesDesdePerfiles(perfiles), [
+      { valor: 'FACIL', etiqueta: 'Fácil', clase: 'opcion--facil' },
+      { valor: 'MEDIO', etiqueta: 'Medio', clase: 'opcion--medio' },
+      { valor: 'DIFICIL', etiqueta: 'Difícil', clase: 'opcion--dificil' },
+    ]);
   });
 
-  it('asigna la clase de color según el nombre, ignorando tildes', () => {
-    const [facil, dificil] = nivelesParaModo(perfiles, 'stockfish');
-    assert.equal(facil.clase, 'opcion--facil');
-    assert.equal(dificil.clase, 'opcion--dificil');
+  it('no repite perfiles', () => {
+    assert.equal(nivelesDesdePerfiles([...perfiles, perfiles[0]]).length, 3);
   });
 
-  it('si los perfiles no indican motor, los muestra todos sin repetir nombres', () => {
-    const sinModo = [
-      { valor: 'a', nombre: 'Fácil', modo: null },
-      { valor: 'b', nombre: 'Medio', modo: null },
-      { valor: 'c', nombre: 'Fácil', modo: null },
-    ];
-    assert.deepEqual(nivelesParaModo(sinModo, 'stockfish').map((n) => n.etiqueta), ['Fácil', 'Medio']);
+  it('muestra un perfil desconocido con su nombre y sin clase de color', () => {
+    assert.deepEqual(nivelesDesdePerfiles([{ valor: 'EXPERTO', nombre: 'EXPERTO' }]), [
+      { valor: 'EXPERTO', etiqueta: 'EXPERTO', clase: '' },
+    ]);
   });
 });

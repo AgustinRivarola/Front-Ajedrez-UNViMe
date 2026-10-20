@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { mensajeDeError } from '../utils/mensajesError.js';
 import { colorOpuesto, esCoronacion, piezaEnCasilla, turnoDesdeFen } from '../utils/traductores.js';
 
 const POSICION_INICIAL = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -15,12 +16,6 @@ const estadoInicial = {
 
 const colorDePieza = (pieza) => (pieza === pieza.toUpperCase() ? 'w' : 'b');
 
-/**
- * Maneja una partida contra el backend. Recibe `api` (ver services/partidasApi.js)
- * para poder probarlo con un falso.
- *
- * error.tipo: 'motor' (falló el turno de la máquina → reintentar o pausar) | 'general'
- */
 export const usePartida = (api) => {
   const [partida, setPartida] = useState(estadoInicial);
   const [seleccionada, setSeleccionada] = useState(null);
@@ -43,7 +38,7 @@ export const usePartida = (api) => {
   };
 
   const mostrarError = (fallo, tipo = 'general') => {
-    setError({ tipo, mensaje: fallo?.message ?? 'Ocurrió un error inesperado.' });
+    setError({ tipo, mensaje: mensajeDeError(fallo) });
   };
 
   const aplicarJugada = (resultado) => {
@@ -77,17 +72,29 @@ export const usePartida = (api) => {
     limpiarSeleccion();
     try {
       const creada = await api.crearPartida({ modo, alias, dificultad, color });
+      let fen = creada.fen ?? POSICION_INICIAL;
+      let jugadas = [];
+      if (modo !== 'jugador') {
+        // Con el motor de blancas, el backend ya jugó al crear la partida.
+        try {
+          const detalle = await api.obtenerPartida(creada.id);
+          fen = detalle.fen ?? fen;
+          jugadas = detalle.jugadas;
+        } catch {
+          // La partida sigue; solo falta la lista inicial.
+        }
+      }
       setPartida({
         id: creada.id,
         modo,
         colorHumano: color,
-        fen: creada.fen ?? POSICION_INICIAL,
+        fen,
         estado: creada.estado ?? 'EN_PROGRESO',
-        jugadas: creada.jugadas ?? [],
+        jugadas,
         cierre: null,
       });
       setCargando(false);
-      if (modo !== 'jugador' && turnoDesdeFen(creada.fen ?? POSICION_INICIAL) !== color) {
+      if (modo !== 'jugador' && turnoDesdeFen(fen) !== color) {
         await pedirJugadaMaquina(creada.id);
       }
       return true;
@@ -159,21 +166,16 @@ export const usePartida = (api) => {
 
   const reintentarMaquina = () => pedirJugadaMaquina(partida.id);
 
-  // `color` = color del jugador que se rinde.
   const rendirse = async (color) => {
     setCargando(true);
     setError(null);
     limpiarSeleccion();
     try {
-      await api.rendirse(partida.id, color);
-      const final = await api.obtenerPartida(partida.id);
+      const final = await api.rendirse(partida.id, color);
       setPartida((actual) => ({
         ...actual,
-        estado: final.estado ?? 'FINALIZADA',
-        cierre: {
-          resultado: final.resultado ?? (color === 'w' ? '0-1' : '1-0'),
-          motivo: final.motivo ?? 'RESIGNATION',
-        },
+        estado: 'FINALIZADA',
+        cierre: { resultado: final.resultado, motivo: final.motivo },
       }));
       return true;
     } catch (fallo) {
@@ -184,7 +186,6 @@ export const usePartida = (api) => {
     }
   };
 
-  // "Guardar y salir": la partida queda PENDIENTE y se puede reanudar por su ID.
   const guardarYSalir = async () => {
     setCargando(true);
     setError(null);

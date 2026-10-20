@@ -1,6 +1,4 @@
 // Convierte las respuestas de la API al formato interno del front.
-// Es el ÚNICO lugar que conoce los nombres de campo del backend: si la guía de
-// conexión Front-Back cambia un nombre, se ajusta acá y nada más.
 
 const lista = (datos, ...claves) => {
   if (Array.isArray(datos)) return datos;
@@ -13,26 +11,31 @@ const lista = (datos, ...claves) => {
 const normalizarJugadaDeLista = (jugada) => (
   typeof jugada === 'string'
     ? { san: jugada }
-    : { san: jugada.san, desde: jugada.from, hasta: jugada.to, fen: jugada.fen_after ?? jugada.fen }
+    : { san: jugada.san, color: jugada.color, fen: jugada.fenAfter ?? jugada.fen }
 );
 
-// GET /games/:id, POST /games
+// POST /games, GET /games/:id, /pause y /resume. El detalle trae `moves`.
 export const normalizarPartida = (datos) => {
-  const partida = datos?.game ?? datos ?? {};
+  const partida = datos ?? {};
   return {
-    id: partida.id ?? partida.gameId,
-    fen: partida.fen ?? partida.currentFen ?? partida.current_fen,
+    id: partida.id,
+    fen: partida.fen,
+    turno: partida.turn === 'BLACK' ? 'b' : 'w',
     estado: partida.status,
     resultado: partida.result ?? null,
-    motivo: partida.endReason ?? partida.end_reason ?? null,
     modo: partida.mode,
+    nombreBlancas: partida.whitePlayerName,
+    nombreNegras: partida.blackPlayerName,
     jugadas: lista(partida.moves).map(normalizarJugadaDeLista),
+    errorMotor: partida.engineError
+      ? { codigo: partida.engineError.code, reintentable: partida.engineError.retryable !== false }
+      : null,
   };
 };
 
-// POST /games/:id/moves y /engine-move → ResultadoJugada { valid, san, fen, status, result?, endReason? }
+// POST /games/:id/moves, /engine-move y /resign (este último no trae san ni fen).
 export const normalizarResultadoJugada = (datos) => {
-  const jugada = datos?.move ?? datos ?? {};
+  const jugada = datos ?? {};
   return {
     valida: jugada.valid !== false,
     san: jugada.san,
@@ -43,18 +46,16 @@ export const normalizarResultadoJugada = (datos) => {
   };
 };
 
-// GET /games/:id/legal-moves?square=e2 → lista de casillas destino
-export const normalizarDestinos = (datos) => (
-  lista(datos, 'moves', 'squares', 'destinations', 'legalMoves')
-    .map((destino) => (typeof destino === 'string' ? destino : destino.to ?? destino.square))
-    .filter(Boolean)
-);
+// Una coronación llega una vez por pieza con el mismo `to`: se deja una sola casilla.
+export const normalizarDestinos = (datos) => [
+  ...new Set(lista(datos, 'moves').map((jugada) => jugada.to).filter(Boolean)),
+];
 
-// GET /difficulty-profiles
+// `POST /games` recibe el `name` del perfil (FACIL | MEDIO | DIFICIL) en `difficulty`.
 export const normalizarPerfiles = (datos) => (
-  lista(datos, 'profiles', 'items', 'data').map((perfil) => ({
-    valor: String(perfil.id ?? perfil.name),
+  lista(datos).map((perfil) => ({
+    valor: perfil.name,
     nombre: perfil.name,
-    modo: perfil.mode ?? perfil.engine ?? null,
+    nivelMotor: perfil.skillLevel ?? null,
   }))
 );
